@@ -15,7 +15,7 @@ std::vector<std::string> tokenize(std::string s, std::string del)
     return tokens;
 }
 
-bool getArguments(DataType &dataType, int &time, std::string &configFile, int argc, char *argv[])
+bool getArguments(SensorArguments &programArguments, int argc, char *argv[])
 {
     if (argc != 4)
     {
@@ -27,15 +27,15 @@ bool getArguments(DataType &dataType, int &time, std::string &configFile, int ar
 
     if (typeString == TEMPERATURE_ARG)
     {
-        dataType = TEMPERATURE;
+        programArguments.type = TEMPERATURE;
     }
     else if (typeString == OXYGEN_ARG)
     {
-        dataType = OXYGEN;
+        programArguments.type = OXYGEN;
     }
     else if (typeString == PH_ARG)
     {
-        dataType = PH;
+        programArguments.type = PH;
     }
     else
     {
@@ -45,7 +45,7 @@ bool getArguments(DataType &dataType, int &time, std::string &configFile, int ar
 
     try
     {
-        time = std::stoi(argv[2]);
+        programArguments.time = std::stoi(argv[2]);
     }
     catch (const std::exception &e)
     {
@@ -53,11 +53,11 @@ bool getArguments(DataType &dataType, int &time, std::string &configFile, int ar
         return false;
     }
 
-    configFile = argv[3];
+    programArguments.configFile = argv[3];
     return true;
 }
 
-bool getConfig(std::string configFile, ConfigValues &configValues)
+bool getConfig(std::string configFile, SensorConfig &configValues)
 {
     std::ifstream inputStream;
     std::string line;
@@ -106,7 +106,7 @@ bool getConfig(std::string configFile, ConfigValues &configValues)
     return true;
 }
 
-int generateData(ConfigValues configValues)
+int generateData(SensorConfig configValues)
 {
     float probability;
     int data;
@@ -131,11 +131,11 @@ int generateData(ConfigValues configValues)
     }
 }
 
-void sendData(ConfigValues configValues, int time, DataType dataType)
+void sendData(SensorConfig configValues, int time, DataType dataType, std::string pushAddress)
 {
     void *context = zmq_ctx_new();
     void *push = zmq_socket(context, ZMQ_PUSH);
-    zmq_connect(push, "tcp://localhost:6969");
+    zmq_connect(push, pushAddress.c_str());
     char buffer[TAM_BUFFER];
     std::string dataString;
     int data;
@@ -169,19 +169,19 @@ void sendData(ConfigValues configValues, int time, DataType dataType)
 int main(int argc, char *argv[])
 {
     srand(time(NULL));
-    DataType dataType;
-    int time;
-    std::string configFile;
-    if (!getArguments(dataType, time, configFile, argc, argv))
+    SensorArguments programArguments;
+    if (!getArguments(programArguments, argc, argv))
     {
         return 0;
     }
 
-    ConfigValues configValues;
-    if (!getConfig(configFile, configValues))
+    SensorConfig configValues;
+    if (!getConfig(programArguments.configFile, configValues))
     {
         return 0;
     }
 
-    sendData(configValues, time, dataType);
+    std::string pushAddress = "tcp://localhost:6969";
+
+    sendData(configValues, programArguments.time, programArguments.type, pushAddress);
 }

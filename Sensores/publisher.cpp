@@ -15,13 +15,13 @@ std::vector<std::string> tokenize(std::string s, std::string del)
     return tokens;
 }
 
-int main(int argc, char *argv[])
+void pullAndPublish(std::string pullAddress, std::string publishAddress)
 {
     void *context = zmq_ctx_new();
     void *pull = zmq_socket(context, ZMQ_PULL);
-    zmq_bind(pull, "tcp://*:6969");
+    zmq_bind(pull, pullAddress.c_str());
     void *publisher = zmq_socket(context, ZMQ_PUB);
-    zmq_bind(publisher, "tcp://*:42069");
+    zmq_bind(publisher, publishAddress.c_str());
     char buffer[TAM_BUFFER];
     std::vector<std::string> tokens;
     
@@ -36,5 +36,11 @@ int main(int argc, char *argv[])
         strcpy(buffer, tokens[1].c_str());
         zmq_send(publisher, buffer, TAM_BUFFER, 0);
     }
-    
+}
+
+int main(int argc, char *argv[])
+{
+    std::string pullAddress = "tcp://*:6969";
+    std::string publishAddress = "tcp://*:42069";
+    pullAndPublish(pullAddress, publishAddress);
 }

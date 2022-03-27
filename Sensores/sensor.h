@@ -1,12 +1,7 @@
-#include <zmq.h>
-#include <string>
-#include <string.h>
 #include <unistd.h>
 #include <fstream>
-#include <iostream>
-#include <vector>
 
-#include "constantes.h"
+#include "shared.h"
 
 #define RANGE_START_TAG "inicio_rango"
 #define RANGE_END_TAG "fin_rango"
@@ -19,7 +14,7 @@
 
 enum DataType {TEMPERATURE, OXYGEN, PH};
 
-struct ConfigValues
+struct SensorConfig
 {
     int rangeStart;
     int rangeEnd;
@@ -28,8 +23,15 @@ struct ConfigValues
     float outOfRangeChance;
 };
 
+struct SensorArguments
+{
+    int time;
+    std::string configFile;
+    DataType type;
+};
+
 std::vector<std::string> tokenize(std::string s, std::string del);
-std::vector<std::string> tokenize(std::string s, std::string del);
-bool getArguments(DataType &dataType, int &time, std::string &configFile, int argc, char *argv[]);
-bool getConfig(std::string configFile, ConfigValues &configValues);
-int generateData(ConfigValues configValues);
+bool getArguments(SensorArguments &programArguments, int argc, char *argv[]);
+bool getConfig(std::string configFile, SensorConfig &configValues);
+int generateData(SensorConfig configValues);
+void sendData(SensorConfig configValues, int time, DataType dataType, std::string pushAddress);

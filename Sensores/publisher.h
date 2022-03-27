@@ -1,10 +1,8 @@
 #pragma once
 
-#include <zmq.h>
-#include "constantes.h"
-#include <iostream>
-#include <string>
 #include <bits/stdc++.h>
-#include <vector>
+
+#include "shared.h"
 
 std::vector<std::string> tokenize(std::string s, std::string del);
+void pullAndPublish(std::string pullAddress, std::string publishAddress);
