@@ -40,7 +40,7 @@ void pullAndPublish(std::string pullAddress, std::string publishAddress)
 
 int main(int argc, char *argv[])
 {
-    std::string pullAddress = "tcp://*:6969";
-    std::string publishAddress = "tcp://*:42069";
+    std::string pullAddress = "tcp://*:2048";
+    std::string publishAddress = "tcp://*:2049";
     pullAndPublish(pullAddress, publishAddress);
 }

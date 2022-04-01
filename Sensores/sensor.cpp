@@ -181,7 +181,7 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    std::string pushAddress = "tcp://localhost:6969";
+    std::string pushAddress = "tcp://localhost:2048";
 
     sendData(configValues, programArguments.time, programArguments.type, pushAddress);
 }

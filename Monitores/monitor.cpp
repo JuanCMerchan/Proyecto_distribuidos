@@ -1,10 +1,12 @@
 #include "monitor.h"
 
+#define PUBLISHER_SOCKET "tcp://192.168.1.122:2049"
+
 int main(int argc, char *argv[])
 {
     void *context = zmq_ctx_new();
     void *subscriber = zmq_socket(context, ZMQ_SUB);
-    zmq_connect(subscriber, "tcp://localhost:42069");
+    zmq_connect(subscriber, PUBLISHER_SOCKET);
     char buffer[TAM_BUFFER];
     std::string type;
     type = argv[1];
