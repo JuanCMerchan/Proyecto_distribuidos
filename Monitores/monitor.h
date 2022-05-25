@@ -6,6 +6,7 @@
 #include <fstream>
 #include <string>
 #include <string.h>
+#include <memory>
 #include <mariadb/conncpp.hpp>
 
 #define RANGE_START_TAG "inicio_rango"

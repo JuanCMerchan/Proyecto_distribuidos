@@ -91,7 +91,7 @@ bool getConfig(std::string configFile, MonitorConfig &configValues)
         {
             while (getline(inputStream, line))
             {
-                if (line[0] == '#')
+                if (line[0] == '#' && line != "")
                 {
                     continue;
                 }
