@@ -94,6 +94,10 @@ bool getConfig(std::string configFile, SensorConfig &configValues)
                 {
                     configValues.outOfRangeChance = std::stof(tokens[1]);
                 }
+                else
+                {
+                    continue;
+                }
             }
             inputStream.close();
         }
@@ -159,8 +163,10 @@ void sendData(SensorConfig configValues, int time, DataType dataType, std::strin
         default:
             break;
         }
-        dataString = dataString + " " + std::to_string(data);
+        auto p1 = std::chrono::system_clock::now();
+        dataString = dataString + " " + std::to_string(data) + " " + std::to_string(p1.time_since_epoch().count());
         strcpy(buffer, dataString.c_str());
+        std::cout << buffer << std::endl;
         zmq_send(push, buffer, TAM_BUFFER, 0);
         sleep(time);
     }

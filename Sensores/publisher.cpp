@@ -29,11 +29,11 @@ void pullAndPublish(std::string pullAddress, std::string publishAddress)
     {
         zmq_recv(pull, buffer, TAM_BUFFER, 0);
         std::string message((char*)buffer);
-        std::cout << message << std::endl;
+        //std::cout << message << std::endl;
         tokens = tokenize(message, " ");
         int size = tokens[0].size();
         zmq_send(publisher, tokens[0].c_str(), tokens[0].size() + 1, ZMQ_SNDMORE);
-        strcpy(buffer, tokens[1].c_str());
+        strcpy(buffer, std::string(tokens[1] + " " + tokens[2]).c_str());
         zmq_send(publisher, buffer, TAM_BUFFER, 0);
     }
 }

@@ -1,6 +1,8 @@
+#pragma once
+
 #include <unistd.h>
 #include <fstream>
-
+#include <chrono>
 #include "shared.h"
 
 #define RANGE_START_TAG "inicio_rango"
