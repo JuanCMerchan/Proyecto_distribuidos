@@ -3,7 +3,6 @@
 void confirmIfAlive()
 {
     std::string replyAddress = "tcp://*:2051";
-    std::cout << ":)" << std::endl;
     void *context = zmq_ctx_new();
     void *reply = zmq_socket(context, ZMQ_REP);
     zmq_bind(reply, replyAddress.c_str());
@@ -11,7 +10,6 @@ void confirmIfAlive()
     while (true)
     {
         zmq_recv(reply, buffer, TAM_BUFFER, 0);
-        std::cout << ":)" << std::endl;
         zmq_send(reply, buffer, TAM_BUFFER, 0);
     }
 }
@@ -25,16 +23,31 @@ void subscribeAndPush(std::string subscriberAddress, std::string pushAddress, Mo
     zmq_setsockopt(subscriber, ZMQ_SUBSCRIBE, programArguments.topic.c_str(), programArguments.topic.size() + 1);
     void *push = zmq_socket(context, ZMQ_PUSH);
     zmq_connect(push, pushAddress.c_str());
+    std::vector<long> times;
+    long bandwidth = 0;
 
     while(true)
     {
         zmq_recv(subscriber, buffer, TAM_BUFFER, 0);
         std::string message((char *)buffer);
+        std::cout << "\r" << "                        " << "\r";
         std::cout << message << std::endl;
         if(message != programArguments.topic)
         {
             std::vector<std::string> tokens = tokenize(message, " ");
             insertToDBTable(programArguments.topic, tokens[0], tokens[1]);
+            times.push_back(std::stol(tokens[1]));
+            if(times.back() - times.front() >= 5000000000l)
+            {
+                bandwidth = times.size() * (TAM_BUFFER + programArguments.topic.size());
+                bandwidth /= 5;
+                while(times.back() - times.front() > 5000000000l)
+                {
+                    times.erase(times.begin());
+                }
+            }
+            std::cout << "Bandwidth: " << bandwidth << " bytes/s";
+            std::cout.flush();
             int dato = std::stoi(tokens[0]);
             if(dato < configValues.rangeStart || dato > configValues.rangeEnd)
             {
@@ -188,7 +201,7 @@ int main(int argc, char *argv[])
     statement.reset(connection->createStatement());
 
     std::string subscriberAddress = "tcp://192.168.1.122:2049";
-    std::string pushAddress = "tcp://192.168.1.123:2050";
+    std::string pushAddress = "tcp://192.168.1.130:2050";
     createDBTable();
     subscribeAndPush(subscriberAddress, pushAddress, programArguments, configValues);   
     checker.join();

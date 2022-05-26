@@ -9,6 +9,7 @@
 #include <memory>
 #include <mariadb/conncpp.hpp>
 #include <thread>
+#include <unistd.h>
 
 #define RANGE_START_TAG "inicio_rango"
 #define RANGE_END_TAG "fin_rango"

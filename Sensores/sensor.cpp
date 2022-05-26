@@ -125,7 +125,7 @@ int generateData(SensorConfig configValues)
     }
     else if (probability >= configValues.rangeChance && probability < configValues.rangeChance + configValues.outOfRangeChance)
     {
-        data += configValues.rangeEnd;
+        data += configValues.rangeEnd - configValues.rangeStart + 1;
         return data;
     }
     else
