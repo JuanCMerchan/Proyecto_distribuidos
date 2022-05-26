@@ -9,12 +9,18 @@ void checkIfAlive(std::string requestAddress, char *argv[])
     zmq_pollitem_t items[1];
     items[0].socket = request;
     items[0].events = ZMQ_POLLIN;
-    char *const args[6] = {"gnome-terminal", "--window", "-x", "bash", "-c", "./monitor temperatura temperatura.cfg 2051"};
+    char argument[100] = "./monitor ";
+    strcat(argument, argv[1]);
+    strcat(argument, " ");
+    strcat(argument, argv[2]);
+    strcat(argument, " ");
+    strcat(argument, argv[3]);
+    char *const args[6] = {"gnome-terminal", "--window", "-x", "bash", "-c", argument};
     int rc = 0;
     while(true)
     {
         zmq_send(request, buffer, TAM_BUFFER, 0);
-        rc = zmq_poll(items, 1, 1000);
+        rc = zmq_poll(items, 1, 2000);
         if(rc == 0)
         {
             pid_t pid = fork();
