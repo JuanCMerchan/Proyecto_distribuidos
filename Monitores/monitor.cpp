@@ -1,5 +1,21 @@
 #include "monitor.h"
 
+void confirmIfAlive()
+{
+    std::string replyAddress = "tcp://*:2051";
+    std::cout << ":)" << std::endl;
+    void *context = zmq_ctx_new();
+    void *reply = zmq_socket(context, ZMQ_REP);
+    zmq_bind(reply, replyAddress.c_str());
+    char buffer[TAM_BUFFER];
+    while (true)
+    {
+        zmq_recv(reply, buffer, TAM_BUFFER, 0);
+        std::cout << ":)" << std::endl;
+        zmq_send(reply, buffer, TAM_BUFFER, 0);
+    }
+}
+
 void subscribeAndPush(std::string subscriberAddress, std::string pushAddress, MonitorArguments programArguments, MonitorConfig configValues)
 {
     void *context = zmq_ctx_new();
@@ -48,7 +64,7 @@ std::vector<std::string> tokenize(std::string s, std::string del)
 
 bool getArguments(MonitorArguments &programArguments, int argc, char *argv[])
 {
-    if (argc != 3)
+    if (argc != 4)
     {
         std::cout << "Numero de argumentos invalido" << std::endl;
         return false;
@@ -75,6 +91,8 @@ bool getArguments(MonitorArguments &programArguments, int argc, char *argv[])
     }
 
     programArguments.configFile = argv[2];
+
+    programArguments.port = argv[3];
 
     return true;
 }
@@ -157,6 +175,8 @@ int main(int argc, char *argv[])
         return 0;
     }
 
+    std::thread checker (confirmIfAlive);
+    
     sql::Driver *driver = sql::mariadb::get_driver_instance();
     sql::SQLString url(DATABASE_JDBC);
     sql::Properties properties({
@@ -167,8 +187,9 @@ int main(int argc, char *argv[])
     connection.reset(driver->connect(DATABASE_JDBC, properties));
     statement.reset(connection->createStatement());
 
-    std::string subscriberAddress = "tcp://localhost:2049";
-    std::string pushAddress = "tcp://localhost:2050";
+    std::string subscriberAddress = "tcp://192.168.1.122:2049";
+    std::string pushAddress = "tcp://192.168.1.123:2050";
     createDBTable();
     subscribeAndPush(subscriberAddress, pushAddress, programArguments, configValues);   
+    checker.join();
 }

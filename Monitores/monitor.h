@@ -8,6 +8,7 @@
 #include <string.h>
 #include <memory>
 #include <mariadb/conncpp.hpp>
+#include <thread>
 
 #define RANGE_START_TAG "inicio_rango"
 #define RANGE_END_TAG "fin_rango"
@@ -29,12 +30,13 @@ struct MonitorArguments
 {
     std::string topic;
     std::string configFile;
+    std::string port;
 };
 
 std::unique_ptr<sql::Connection> connection;
 std::shared_ptr<sql::Statement> statement;
 
-void confirmAlive();
+void confirmIfAlive();
 void createDBTable();
 void exitProcess();
 bool getArguments(MonitorArguments &programArguments, int argc, char *argv[]);
