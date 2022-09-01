@@ -37,7 +37,7 @@ struct MonitorArguments
 std::unique_ptr<sql::Connection> connection;
 std::shared_ptr<sql::Statement> statement;
 
-void confirmIfAlive();
+void confirmIfAlive(std::string port);
 void createDBTable();
 void exitProcess();
 bool getArguments(MonitorArguments &programArguments, int argc, char *argv[]);

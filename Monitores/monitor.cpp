@@ -1,8 +1,8 @@
 #include "monitor.h"
 
-void confirmIfAlive()
+void confirmIfAlive(std::string port)
 {
-    std::string replyAddress = "tcp://*:2051";
+    std::string replyAddress = "tcp://*:" + port;
     void *context = zmq_ctx_new();
     void *reply = zmq_socket(context, ZMQ_REP);
     zmq_bind(reply, replyAddress.c_str());
@@ -40,7 +40,7 @@ void subscribeAndPush(std::string subscriberAddress, std::string pushAddress, Mo
             if(times.back() - times.front() >= 5000000000l)
             {
                 bandwidth = times.size() * (TAM_BUFFER + programArguments.topic.size());
-                bandwidth /= 5;
+                bandwidth /= (times.back() - times.front());
                 while(times.back() - times.front() > 5000000000l)
                 {
                     times.erase(times.begin());
@@ -187,9 +187,9 @@ int main(int argc, char *argv[])
     {
         return 0;
     }
-
-    std::thread checker (confirmIfAlive);
+    std::thread checker (confirmIfAlive, programArguments.port);
     
+    std::cout << "Connecting to db" << std::endl;
     sql::Driver *driver = sql::mariadb::get_driver_instance();
     sql::SQLString url(DATABASE_JDBC);
     sql::Properties properties({
@@ -200,6 +200,7 @@ int main(int argc, char *argv[])
     connection.reset(driver->connect(DATABASE_JDBC, properties));
     statement.reset(connection->createStatement());
 
+    
     std::string subscriberAddress = "tcp://192.168.1.122:2049";
     std::string pushAddress = "tcp://192.168.1.130:2050";
     createDBTable();
